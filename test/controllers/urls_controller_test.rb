@@ -1,5 +1,6 @@
 
 require "test_helper"
+require "minitest/mock"
 
 class UrlsControllerTest < ActionDispatch::IntegrationTest
   test "POST /encode returns a short code for a valid URL" do
@@ -16,36 +17,38 @@ class UrlsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
 
     body = JSON.parse(response.body)
-    assert_includes body["errors"], "Long url is not a valid URL"
+    assert_includes body["error"], "Long url is not a valid URL"
   end
 
   test "POST /encode fails when short code cannot be generated after retries" do
     duplicate_code = "abc1234"
-    Url.create!(long_url: "https://rubyonrails.org", short_code: duplicate_code)
+    original = Url.create!(long_url: "https://rubyonrails.org")
+    original.update(short_code: duplicate_code)
 
-    ShortCodeGenerator.stub :generate, duplicate_code do
+
+    ShortCodeGenerator.stub(:generate, duplicate_code) do
       post "/encode", params: { long_url: "https://example.com" }
       assert_response :unprocessable_entity
 
       body = JSON.parse(response.body)
-      assert_includes body["errors"], "Short url could not generate a unique short code"
+      assert_includes body["error"], "Short code has already been taken"
     end
   end
 
-  test "POST /decode returns long_url when short_code exists" do
+  test "GET /decode returns long_url when short_code exists" do
     url = Url.create!(long_url: "https://rubyonrails.org")
 
-    post "/decode", params: { short_code: url.short_code }
+    get "/decode/#{url.short_code}"
     assert_response :success
 
     body = JSON.parse(response.body)
     assert_equal url.long_url, body["long_url"]
   end
 
-  test "POST /decode returns 404 when short_code does not exist" do
-    post "/decode", params: { short_code: "abcdefg" }
+  test "GET /decode returns 404 when short_code does not exist" do
+    non_existence_code = "abcdefg"
+    get "/decode/#{non_existence_code}"
     assert_response :not_found
-
     body = JSON.parse(response.body)
     assert_includes body["error"], "Not found"
   end

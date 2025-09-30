@@ -6,13 +6,13 @@ class UrlsController < ApplicationController
       render json: { short_code: url.short_code }
     else
       errors = url.present? ? url.errors.full_messages : ""
-      render json: { error: errors }, state: :unprocessable_entity
+      render json: { error: errors }, status: :unprocessable_entity
     end
   end
 
   # GET /decode/:short_code
   def decode
-    url = Url.find_by(short_code: params[:short_code])
+    url = Url.where(short_code: params[:short_code]).last
     if url
       render json: { long_url: url.long_url }
     else

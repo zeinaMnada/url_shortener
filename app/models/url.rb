@@ -4,8 +4,8 @@ class Url < ApplicationRecord
 
   validates :short_code, uniqueness: true
 
-  # generating short code before validation instead of before create to avoid unnecessary computation if long_url is invalid
-  before_validation :assign_short_code, on: :create
+  # generating short code after validation instead of before create to avoid unnecessary computation if long_url is invalid
+  after_validation :assign_short_code, on: :create
 
   private
 

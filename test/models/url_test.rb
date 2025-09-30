@@ -1,4 +1,5 @@
 require "test_helper"
+require "minitest/mock"
 
 class UrlTest < ActiveSupport::TestCase
   test "assigns short code when long_url is valid" do
@@ -29,9 +30,10 @@ class UrlTest < ActiveSupport::TestCase
 
   test "retries up to 3 times to resolve collisions" do
     duplicate_code = "abc1234"
-    Url.create!(long_url: "https://rubyonrails.org", short_code: duplicate_code)
+    original = Url.create!(long_url: "https://rubyonrails.org")
+    original.update(short_code: duplicate_code)
 
-    ShortCodeGenerator.stub :generate, duplicate_code do
+    ShortCodeGenerator.stub(:generate, duplicate_code) do
       url = Url.new(long_url: "https://example.com")
       refute url.save
       assert_includes url.errors[:short_code], "could not generate a unique short code"

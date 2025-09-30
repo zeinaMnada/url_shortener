@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>URL Shortener</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        background: #f5f7fa;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+      }
+
+      .container {
+        background: white;
+        padding: 2rem;
+        margin-top: 3rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        width: 500px;
+        max-width: 90%;
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        color: #2563eb;
+      }
+
+      h2 {
+        margin-top: 1.5rem;
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+        color: #444;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 0.7rem;
+        margin-bottom: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 1rem;
+      }
+
+      button {
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 8px;
+        background: #2563eb;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+
+      button:hover {
+        background: #1d4ed8;
+      }
+
+      pre {
+        background: #f3f4f6;
+        padding: 0.7rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>URL Shortener</h1>
+
+      <h2>Encode</h2>
+      <input type="text" id="longUrl" placeholder="Enter long URL" />
+      <button type="button" onclick="encodeUrl()">Shorten</button>
+      <pre id="encodeResult"></pre>
+
+      <h2>Decode</h2>
+      <input type="text" id="shortCode" placeholder="Enter short code" />
+      <button type="button" onclick="decodeUrl()">Expand</button>
+      <pre id="decodeResult"></pre>
+    </div>
+
+    <script>
+      async function encodeUrl() {
+        const url = document.getElementById("longUrl").value;
+        const res = await fetch("/encode", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ long_url: url })
+        });
+        document.getElementById("encodeResult").textContent =
+          JSON.stringify(await res.json(), null, 2);
+      }
+
+      async function decodeUrl() {
+        const code = document.getElementById("shortCode").value;
+        const res = await fetch("/decode", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ short_code: code })
+        });
+        document.getElementById("decodeResult").textContent =
+          JSON.stringify(await res.json(), null, 2);
+      }
+      async function decodeUrl() {
+        const code = document.getElementById("shortCode").value;
+        const res = await fetch(`/decode/${code}`, {
+          method: "GET"
+        });
+        document.getElementById("decodeResult").textContent =
+          JSON.stringify(await res.json(), null, 2);
+      }
+    </script>
+  </body>
+</html>

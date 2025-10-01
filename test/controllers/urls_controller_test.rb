@@ -8,8 +8,8 @@ class UrlsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     body = JSON.parse(response.body)
-    assert body["short_code"].present?
-    assert_equal 7, body["short_code"].length
+    assert body["short_url"].present?
+    assert_equal 7, body["short_url"].split("/").last.length
   end
 
   test "POST /encode fails for an invalid URL" do
@@ -38,7 +38,7 @@ class UrlsControllerTest < ActionDispatch::IntegrationTest
   test "GET /decode returns long_url when short_code exists" do
     url = Url.create!(long_url: "https://rubyonrails.org")
 
-    get "/decode/#{url.short_code}"
+    get "/decode", params: { short_code: url.short_code }
     assert_response :success
 
     body = JSON.parse(response.body)
@@ -47,7 +47,7 @@ class UrlsControllerTest < ActionDispatch::IntegrationTest
 
   test "GET /decode returns 404 when short_code does not exist" do
     non_existence_code = "abcdefg"
-    get "/decode/#{non_existence_code}"
+    get "/decode", params: { short_code: non_existence_code }
     assert_response :not_found
     body = JSON.parse(response.body)
     assert_includes body["error"], "Not found"

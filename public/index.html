@@ -100,18 +100,8 @@
       }
 
       async function decodeUrl() {
-        const code = document.getElementById("shortCode").value;
-        const res = await fetch("/decode", {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ short_code: code })
-        });
-        document.getElementById("decodeResult").textContent =
-          JSON.stringify(await res.json(), null, 2);
-      }
-      async function decodeUrl() {
-        const code = document.getElementById("shortCode").value;
-        const res = await fetch(`/decode/${code}`, {
+        const short_url = document.getElementById("shortCode").value;
+        const res = await fetch(`/decode?short_code=${short_url}`, {
           method: "GET"
         });
         document.getElementById("decodeResult").textContent =

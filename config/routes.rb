@@ -10,5 +10,5 @@ Rails.application.routes.draw do
   root to: "static#index"
 
   post "/encode", to: "urls#encode"
-  get "/decode/:short_code", to: "urls#decode"
+  get "/decode", to: "urls#decode"
 end
